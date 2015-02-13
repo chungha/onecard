@@ -62,8 +62,7 @@ function updateCards(username, card) {
   cards = cards.slice(0, indexOfCards).concat(cards.slice(indexOfCards + 1));
   userCards[username] = cards;
 
-  if (cards.length == 0) return false;
-  return true;
+  return cards.length != 0;
 }
 
 // Return response string
