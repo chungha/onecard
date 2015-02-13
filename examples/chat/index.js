@@ -28,16 +28,17 @@ function initCards() {
   var totalCards = [];
   for (i = 0; i < 4; i++) {
     for (j = 1; j <= 10; j++) {
-      totalCards.push(j + LETTER[i]);
+      totalCards.push(j.toString() + LETTER[i]);
     }
   }
   var lastCardIndex = Math.floor((Math.random() * totalCards.length));
-  totalCards = totalCards.slice(0, lastCardIndex) + totalCards.slice(lastCardIndex + 1);
+  lastCard = totalCards[lastCardIndex];
+  totalCards = totalCards.slice(0, lastCardIndex).concat(totalCards.slice(lastCardIndex + 1));
   while(totalCards.length > 0) {
     for (username in usernames) {
       var x = Math.floor((Math.random() * totalCards.length));
       userCards[username].push(totalCards[x]);
-      totalCards = totalCards.slice(0, x) + totalCards.slice(x + 1);
+      totalCards = totalCards.slice(0, x).concat(totalCards.slice(x + 1));
     }
   }
 }
@@ -47,13 +48,17 @@ function initCards() {
 function updateCards(username, card) {
   var cards = userCards[username];
   var indexOfCards = cards.indexOf(card);
-  if (indexOfCards == -1) return true;
+  if (indexOfCards == -1) {
+    return true;
+  }
 
   var lastCardNumber = lastCard.slice(0, lastCard.length - 1);
   var lastCardType = lastCard.slice(lastCard.length - 1, lastCard.length);
   var cardNumber = card.slice(0, card.length - 1);
   var cardType = card.slice(card.length - 1, card.length);
-  if (cardNumber != lastCardNumber && cardType != lastCardType) return true;
+  if (cardNumber != lastCardNumber && cardType != lastCardType) {
+    return true;
+  }
 
   // update last card
   lastCard = card;
@@ -67,7 +72,7 @@ function updateCards(username, card) {
 
 // Return response string
 function toStringCards(username) {
-  return lastCard + ' == ' + userCards[username].toString();
+  return lastCard + ' == ' + userCards[username];
 }
 
 io.on('connection', function (socket) {
