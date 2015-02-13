@@ -20,6 +20,19 @@ var numUsers = 0;
 var lastCard = '';
 var userCards = {};
 
+// Update userCards, lastCard
+function initCards() {
+}
+
+// Update userCards, lastCard
+// return if false, the user wins and the game is finished.
+function updateCards(username, card) {
+}
+
+// Return response string
+function toStringCards(username) {
+}
+
 io.on('connection', function (socket) {
   var addedUser = false;
 
