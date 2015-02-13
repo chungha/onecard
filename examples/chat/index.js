@@ -22,6 +22,22 @@ var userCards = {};
 
 // Update userCards, lastCard
 function initCards() {
+  var LETTER = ["a", "b", "c", "d"];
+  var totalCards = [];
+  for (i = 0; i < 4; i++) {
+    for (j = 1; j <= 10; j++) {
+      totalCards.push(j + LETTER[i]);
+    }
+  }
+  var lastCardIndex = Math.floor((Math.random() * totalCards.length));
+  totalCards = totalCards.slice(0, lastCardIndex) + totalCards.slice(lastCardIndex + 1);
+  while(totalCards.length > 0) {
+    for (username in usernames) {
+      var x = Math.floor((Math.random() * totalCards.length));
+      userCards[username].push(totalCards[x]);
+      totalCards = totalCards.slice(0, x) + totalCards.slice(x + 1);
+    }
+  }
 }
 
 // Update userCards, lastCard
@@ -70,6 +86,7 @@ io.on('connection', function (socket) {
     socket.username = username;
     // add the client's username to the global list
     usernames[username] = username;
+    userCards[username] = [];
     ++numUsers;
     addedUser = true;
     socket.emit('login', {
