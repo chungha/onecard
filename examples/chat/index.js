@@ -27,6 +27,25 @@ function initCards() {
 // Update userCards, lastCard
 // return if false, the user wins and the game is finished.
 function updateCards(username, card) {
+  var cards = userCards[username];
+  var indexOfCards = cards.indexOf(card);
+  if (indexOfCards == -1) return true;
+
+  var lastCardNumber = lastCard.slice(0, lastCard.length - 1);
+  var lastCardType = lastCard.slice(lastCard.length - 1, lastCard.length);
+  var cardNumber = card.slice(0, card.length - 1);
+  var cardType = card.slice(card.length - 1, card.length);
+  if (cardNumber != lastCardNumber && cardType != lastCardType) return true;
+
+  // update last card
+  lastCard = card;
+
+  // remove the card from the user's cards
+  cards = cards.slice(0, indexOfCards).concat(cards.slice(indexOfCards + 1));
+  userCards[username] = cards;
+
+  if (cards.length == 0) return false;
+  return true;
 }
 
 // Return response string
