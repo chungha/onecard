@@ -66,6 +66,7 @@ function updateCards(username, card) {
 
 // Return response string
 function toStringCards(username) {
+  return userCards[username].toString();
 }
 
 io.on('connection', function (socket) {
