@@ -24,16 +24,51 @@ var started = false;
 
 // Update userCards, lastCard
 function initCards() {
+  var LETTER = ["a", "b", "c", "d"];
+  var totalCards = [];
+  for (i = 0; i < 4; i++) {
+    for (j = 1; j <= 10; j++) {
+      totalCards.push(j + LETTER[i]);
+    }
+  }
+  var lastCardIndex = Math.floor((Math.random() * totalCards.length));
+  totalCards = totalCards.slice(0, lastCardIndex) + totalCards.slice(lastCardIndex + 1);
+  while(totalCards.length > 0) {
+    for (username in usernames) {
+      var x = Math.floor((Math.random() * totalCards.length));
+      userCards[username].push(totalCards[x]);
+      totalCards = totalCards.slice(0, x) + totalCards.slice(x + 1);
+    }
+  }
 }
 
 // Update userCards, lastCard
 // return if false, the user wins and the game is finished.
 function updateCards(username, card) {
+  var cards = userCards[username];
+  var indexOfCards = cards.indexOf(card);
+  if (indexOfCards == -1) return true;
+
+  var lastCardNumber = lastCard.slice(0, lastCard.length - 1);
+  var lastCardType = lastCard.slice(lastCard.length - 1, lastCard.length);
+  var cardNumber = card.slice(0, card.length - 1);
+  var cardType = card.slice(card.length - 1, card.length);
+  if (cardNumber != lastCardNumber && cardType != lastCardType) return true;
+
+  // update last card
+  lastCard = card;
+
+  // remove the card from the user's cards
+  cards = cards.slice(0, indexOfCards).concat(cards.slice(indexOfCards + 1));
+  userCards[username] = cards;
+
+  if (cards.length == 0) return false;
+  return true;
 }
 
 // Return response string
 function toStringCards(username) {
-  return username;
+  return lastCard + ' == ' + userCards[username].toString();
 }
 
 io.on('connection', function (socket) {
@@ -99,6 +134,7 @@ io.on('connection', function (socket) {
     // add the client's username to the global list
     usernames[username] = username;
     sockets[username] = socket;
+    userCards[username] = [];
     ++numUsers;
     addedUser = true;
     socket.emit('login', {
