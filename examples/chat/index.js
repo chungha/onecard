@@ -17,6 +17,8 @@ app.use(express.static(__dirname + '/public'));
 // usernames which are currently connected to the chat
 var usernames = {};
 var numUsers = 0;
+var lastCard = '';
+var userCards = {};
 
 io.on('connection', function (socket) {
   var addedUser = false;
