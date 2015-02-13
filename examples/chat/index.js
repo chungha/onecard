@@ -16,9 +16,11 @@ app.use(express.static(__dirname + '/public'));
 
 // usernames which are currently connected to the chat
 var usernames = {};
+var sockets = {};
 var numUsers = 0;
 var lastCard = '';
 var userCards = {};
+var started = false;
 
 // Update userCards, lastCard
 function initCards() {
@@ -31,6 +33,7 @@ function updateCards(username, card) {
 
 // Return response string
 function toStringCards(username) {
+  return username;
 }
 
 io.on('connection', function (socket) {
@@ -38,11 +41,55 @@ io.on('connection', function (socket) {
 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function (data) {
-    // we tell the client to execute 'new message'
-    socket.broadcast.emit('new message', {
-      username: socket.username,
-      message: data
-    });
+    if (data === 'start') {
+      if (started) {
+	socket.broadcast.send('new message', {
+	  username: 'Server',
+          message: 'Already started'
+	});
+      } else {
+	started = true;
+	initCards();
+	socket.emit('new message', {
+	  username: 'Server',
+          message: 'Start Game!'
+	});
+	socket.broadcast.emit('new message', {
+	  username: 'Server',
+          message: 'Start Game!'
+	});
+
+	var list = Object.keys(sockets);
+	for (var i = 0; i < list.length; i++) {
+          var s = sockets[list[i]];
+          s.emit('new message', {
+            username: 'Cards',
+	    message: toStringCards(s.username)
+	  });
+        }
+      }
+    } else {
+      if (!updateCards(socket.username, data)) {
+	socket.emit('new message', {
+	  username: 'Server',
+          message: 'You WIN!'
+	});
+	socket.broadcast.emit('new message', {
+	  username: 'Server',
+          message: socket.username + ' WIN!'
+	});
+	started = false;
+      } else {
+	var list = Object.keys(sockets);
+	for (var i = 0; i < list.length; i++) {
+          var s = sockets[list[i]];
+          s.emit('new message', {
+            username: 'Cards',
+	    message: toStringCards(s.username)
+	  });
+        }
+      }
+    }
   });
 
   // when the client emits 'add user', this listens and executes
@@ -51,6 +98,7 @@ io.on('connection', function (socket) {
     socket.username = username;
     // add the client's username to the global list
     usernames[username] = username;
+    sockets[username] = socket;
     ++numUsers;
     addedUser = true;
     socket.emit('login', {
